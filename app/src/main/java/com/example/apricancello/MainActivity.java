@@ -46,28 +46,45 @@ public class MainActivity extends AppCompatActivity {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 String payload_str = new String(message.getPayload());
 
-                if (pressed_button) {
-                    subText.setText(payload_str);
+                Button btn_apri = (Button) findViewById(R.id.apri);
+                Button btn_apri_lungo = (Button) findViewById(R.id.aprilungo);
+                TextView tv_mqtt_reply = (TextView) findViewById(R.id.mqtt_reply);
+                TextView tv_mqtt_connection_gate = (TextView) findViewById(R.id.check_connection_gate);
 
-                    Button btn_apri = (Button) findViewById(R.id.apri);
-                    Button btn_apri_lungo = (Button) findViewById(R.id.aprilungo);
-                    TextView tv_mqtt_reply = (TextView) findViewById(R.id.mqtt_reply);
+                if (topic.equals("homeAssistant/casaBonate/cover/cancello/state")){
+                    if (pressed_button) {
+                        subText.setText(payload_str);
 
-                    btn_apri.setTextColor(Color.WHITE);
-                    btn_apri_lungo.setTextColor(Color.WHITE);
-                    tv_mqtt_reply.setTextColor(Color.WHITE);
 
-                    if (payload_str.equals("opening")) {
-                        btn_apri.setBackgroundColor(Color.GREEN);
-                        btn_apri_lungo.setBackgroundColor(Color.GREEN);
-                        tv_mqtt_reply.setBackgroundColor(Color.GREEN);
-                        tv_mqtt_reply.setText("Sto Aprendo!");
 
-                    } else {
-                        btn_apri.setBackgroundColor(Color.RED);
-                        btn_apri_lungo.setBackgroundColor(Color.RED);
-                        tv_mqtt_reply.setBackgroundColor(Color.RED);
-                        tv_mqtt_reply.setText("Errore");
+                        btn_apri.setTextColor(Color.WHITE);
+                        btn_apri_lungo.setTextColor(Color.WHITE);
+                        tv_mqtt_reply.setTextColor(Color.WHITE);
+
+                        if (payload_str.equals("opening")) {
+                            btn_apri.setBackgroundColor(Color.GREEN);
+                            btn_apri_lungo.setBackgroundColor(Color.GREEN);
+                            tv_mqtt_reply.setBackgroundColor(Color.GREEN);
+                            tv_mqtt_reply.setText("Sto Aprendo!");
+
+                        } else {
+                            btn_apri.setBackgroundColor(Color.RED);
+                            btn_apri_lungo.setBackgroundColor(Color.RED);
+                            tv_mqtt_reply.setBackgroundColor(Color.RED);
+                            tv_mqtt_reply.setText("Errore");
+                        }
+                    }
+
+                }
+
+                if (topic.equals("homeAssistant/casaBonate/cover/cancello/confirmOnline")) {
+                    if (payload_str.equals("Yep!")) {
+
+                        tv_mqtt_connection_gate.setTextColor(Color.GREEN);
+                        tv_mqtt_connection_gate.setText("Cancello connessso!");
+
+                        btn_apri.setEnabled(true);
+                        btn_apri_lungo.setEnabled(true);
                     }
                 }
             }
@@ -116,6 +133,7 @@ public class MainActivity extends AppCompatActivity {
         try{
 
             client.subscribe("homeAssistant/casaBonate/cover/cancello/state",0);
+            client.subscribe("homeAssistant/casaBonate/cover/cancello/confirmOnline",0);
 
 
         }catch (MqttException e){
@@ -134,7 +152,13 @@ public class MainActivity extends AppCompatActivity {
                     setSubscription();
                     TextView tv_mqtt_connection = (TextView)findViewById(R.id.check_connection);
                     tv_mqtt_connection.setTextColor(Color.GREEN);
-                    tv_mqtt_connection.setText("Connessso!");
+                    tv_mqtt_connection.setText("Server connessso!");
+
+                    try {
+                        client.publish("homeAssistant/casaBonate/cover/cancello/confirmOnline", "uThere?".getBytes(),0,false);
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
                 }
 
                 @Override
