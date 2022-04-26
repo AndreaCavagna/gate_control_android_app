@@ -7,6 +7,9 @@ import android.os.Bundle;
 
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -50,24 +53,66 @@ public class MainActivity extends AppCompatActivity {
                 Button btn_apri_lungo = (Button) findViewById(R.id.aprilungo);
                 TextView tv_mqtt_reply = (TextView) findViewById(R.id.mqtt_reply);
                 TextView tv_mqtt_connection_gate = (TextView) findViewById(R.id.check_connection_gate);
+                TextView check_connection_gate_posix = (TextView) findViewById(R.id.check_connection_gate_posix);
 
                 if (topic.equals("homeAssistant/casaBonate/cover/cancello/state")){
+                    check_connection_gate_posix.setText(payload_str.toUpperCase());
+                    check_connection_gate_posix.setTextColor(Color.parseColor("#CCCCCC"));
+
+
                     if (pressed_button) {
                         subText.setText(payload_str);
-
-
 
                         btn_apri.setTextColor(Color.WHITE);
                         btn_apri_lungo.setTextColor(Color.WHITE);
                         tv_mqtt_reply.setTextColor(Color.WHITE);
 
+                        int opening_color = Color.rgb(255, 255, 0);
+                        int open_color = Color.rgb(0, 255, 0);
+                        int closing_color = Color.rgb(255, 128, 0);
+                        int closed_color = Color.rgb(150, 0, 150);
+
                         if (payload_str.equals("opening")) {
-                            btn_apri.setBackgroundColor(Color.GREEN);
-                            btn_apri_lungo.setBackgroundColor(Color.GREEN);
-                            tv_mqtt_reply.setBackgroundColor(Color.GREEN);
+                            btn_apri.setBackgroundColor(opening_color);
+                            btn_apri_lungo.setBackgroundColor(opening_color);
+                            tv_mqtt_reply.setBackgroundColor(opening_color);
                             tv_mqtt_reply.setText("Sto Aprendo!");
 
-                        } else {
+                            Animation mAnimation = new AlphaAnimation(1, 0);
+                            mAnimation.setDuration(1000);
+                            mAnimation.setInterpolator(new LinearInterpolator());
+                            mAnimation.setRepeatCount(20);
+                            mAnimation.setRepeatMode(Animation.REVERSE);
+                            tv_mqtt_reply.startAnimation(mAnimation);
+
+
+                        } else if (payload_str.equals("open")) {
+
+                            btn_apri.setBackgroundColor(open_color);
+                            btn_apri_lungo.setBackgroundColor(open_color);
+                            tv_mqtt_reply.setBackgroundColor(open_color);
+                            tv_mqtt_reply.setText("Aperto!");
+
+                        }else if (payload_str.equals("closing")) {
+                            btn_apri.setBackgroundColor(closing_color);
+                            btn_apri_lungo.setBackgroundColor(closing_color);
+                            tv_mqtt_reply.setBackgroundColor(closing_color);
+                            tv_mqtt_reply.setText("Sto Chiudendo!");
+
+                            Animation mAnimation = new AlphaAnimation(1, 0);
+                            mAnimation.setDuration(1000);
+                            mAnimation.setInterpolator(new LinearInterpolator());
+                            mAnimation.setRepeatCount(20);
+                            mAnimation.setRepeatMode(Animation.REVERSE);
+                            tv_mqtt_reply.startAnimation(mAnimation);
+
+                        }else if (payload_str.equals("closed")) {
+                            btn_apri.setBackgroundColor(closed_color);
+                            btn_apri_lungo.setBackgroundColor(closed_color);
+                            tv_mqtt_reply.setBackgroundColor(closed_color);
+                            tv_mqtt_reply.setText("Chiuso!");
+
+                        }else {
                             btn_apri.setBackgroundColor(Color.RED);
                             btn_apri_lungo.setBackgroundColor(Color.RED);
                             tv_mqtt_reply.setBackgroundColor(Color.RED);
